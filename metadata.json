@@ -1,0 +1,6 @@
+{
+  "name": "MHC Notice Board",
+  "description": "Digital staff leave, noticeboard display, and duty roster management system for Maduvvari Health Centre.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

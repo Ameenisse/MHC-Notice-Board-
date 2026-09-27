@@ -1,0 +1,440 @@
+{
+  "entities": {
+    "Staff": {
+      "title": "Staff",
+      "description": "Healthcare centre staff member profile",
+      "type": "object",
+      "properties": {
+        "staffId": { "type": "string", "description": "Unique staff ID code e.g. MHC-001" },
+        "fullName": { "type": "string", "description": "Full legal name in English" },
+        "fullNameDhivehi": { "type": "string", "description": "Full name in Thaana script" },
+        "designation": { "type": "string", "description": "Clinical or administrative designation" },
+        "designationDhivehi": { "type": "string", "description": "Designation in Thaana script" },
+        "department": { "type": "string", "description": "Department name" },
+        "departmentDhivehi": { "type": "string", "description": "Department name in Thaana script" },
+        "photoUrl": { "type": "string", "description": "Profile picture URL" },
+        "phone": { "type": "string", "description": "Staff contact phone number" },
+        "email": { "type": "string", "description": "Official email address" },
+        "roles": { "type": "array", "items": { "type": "string" }, "description": "Assigned multiple system and clinical roles" },
+        "hasUserAccount": { "type": "boolean", "description": "Whether staff has a linked login account" },
+        "userId": { "type": "string", "description": "Linked AppUser ID" },
+        "username": { "type": "string", "description": "Linked AppUser username" },
+        "active": { "type": "boolean", "description": "Whether staff member is active" },
+        "createdAt": { "type": "number", "description": "Epoch timestamp of creation" },
+        "updatedAt": { "type": "number", "description": "Epoch timestamp of last update" }
+      },
+      "required": ["staffId", "fullName", "designation", "department", "active"]
+    },
+    "Department": {
+      "title": "Department",
+      "description": "Organizational department / ward",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Department name in English" },
+        "nameDhivehi": { "type": "string", "description": "Department name in Thaana script" },
+        "order": { "type": "number", "description": "Sort and display sequence order" },
+        "code": { "type": "string", "description": "Optional short abbreviation" },
+        "active": { "type": "boolean", "description": "Whether department is active" }
+      },
+      "required": ["name", "order"]
+    },
+    "LeaveCategory": {
+      "title": "LeaveCategory",
+      "description": "Leave classification category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Category title in English" },
+        "nameDhivehi": { "type": "string", "description": "Category title in Thaana script" },
+        "color": { "type": "string", "description": "HEX color representation code" },
+        "order": { "type": "number", "description": "Display order" },
+        "active": { "type": "boolean", "description": "Whether category is active" }
+      },
+      "required": ["name", "color", "order", "active"]
+    },
+    "LeaveRecord": {
+      "title": "LeaveRecord",
+      "description": "Staff leave absence schedule record",
+      "type": "object",
+      "properties": {
+        "staffId": { "type": "string", "description": "Associated staff document id" },
+        "staffName": { "type": "string", "description": "Full name of staff member" },
+        "staffCustomId": { "type": "string", "description": "Staff employee code" },
+        "staffDesignation": { "type": "string", "description": "Staff job title" },
+        "staffDepartment": { "type": "string", "description": "Staff department" },
+        "staffPhotoUrl": { "type": "string", "description": "Staff photo URL" },
+        "categoryId": { "type": "string", "description": "Leave category ID" },
+        "categoryName": { "type": "string", "description": "Leave category name" },
+        "startDate": { "type": "string", "description": "Leave start date YYYY-MM-DD" },
+        "endDate": { "type": "string", "description": "Leave end date YYYY-MM-DD" },
+        "expectedReturnDate": { "type": "string", "description": "Expected return date YYYY-MM-DD" },
+        "status": { "type": "string", "enum": ["draft", "approved", "cancelled"], "description": "Leave status" },
+        "privateRemarks": { "type": "string", "description": "Internal admin notes" },
+        "createdAt": { "type": "number", "description": "Timestamp created" },
+        "updatedAt": { "type": "number", "description": "Timestamp updated" },
+        "approvedBy": { "type": "string", "description": "Admin email who approved" }
+      },
+      "required": ["staffId", "staffName", "categoryId", "startDate", "endDate", "status"]
+    },
+    "Notice": {
+      "title": "Notice",
+      "description": "Staff bulletin noticeboard announcement",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Notice headline in English" },
+        "titleDhivehi": { "type": "string", "description": "Notice headline in Thaana" },
+        "message": { "type": "string", "description": "Notice body content in English" },
+        "messageDhivehi": { "type": "string", "description": "Notice body in Thaana" },
+        "priority": { "type": "string", "enum": ["normal", "important", "urgent"] },
+        "publishStart": { "type": "string", "description": "Start ISO datetime" },
+        "publishEnd": { "type": "string", "description": "End ISO datetime" },
+        "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+        "attachmentUrl": { "type": "string", "description": "Optional file attachment URL" },
+        "attachmentType": { "type": "string", "enum": ["image", "pdf", "none"] },
+        "coverImageUrl": { "type": "string", "description": "Optional cover photo" },
+        "attachmentFileName": { "type": "string", "description": "Original file name" },
+        "createdAt": { "type": "number", "description": "Timestamp created" },
+        "updatedAt": { "type": "number", "description": "Timestamp updated" }
+      },
+      "required": ["title", "message", "priority", "publishStart", "publishEnd", "status"]
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "description": "Global application configuration and display settings",
+      "type": "object",
+      "properties": {
+        "orgName": { "type": "string" },
+        "orgNameDhivehi": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "boardTitle": { "type": "string" },
+        "boardTitleDhivehi": { "type": "string" },
+        "displayMode": { "type": "string", "enum": ["leave_only", "notices_only", "alternating"] },
+        "layoutMode": { "type": "string", "enum": ["auto", "landscape", "portrait"] },
+        "cardsPerPage": { "type": "number" },
+        "rotationInterval": { "type": "number" },
+        "fallbackRefreshInterval": { "type": "number" },
+        "showEmptyCategories": { "type": "boolean" },
+        "announcementStripEnabled": { "type": "boolean" },
+        "announcementText": { "type": "string" },
+        "announcementTextDhivehi": { "type": "string" },
+        "clockFormat": { "type": "string", "enum": ["12h", "24h"] },
+        "dateFormat": { "type": "string" },
+        "themeColor": { "type": "string" },
+        "themeMode": { "type": "string", "enum": ["night", "day"], "description": "Display theme mode: night (dark) or day (light)" },
+        "defaultLanguage": { "type": "string", "enum": ["en", "dv", "both"] },
+        "timezone": { "type": "string" }
+      },
+      "required": ["orgName", "displayMode", "cardsPerPage", "rotationInterval", "themeColor"]
+    },
+    "PairedDisplay": {
+      "title": "PairedDisplay",
+      "description": "Authorized TV screen display terminal",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "token": { "type": "string" },
+        "pairedAt": { "type": "number" },
+        "lastSeenAt": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "revoked"] },
+        "deviceInfo": { "type": "string" }
+      },
+      "required": ["displayName", "token", "pairedAt", "lastSeenAt", "status"]
+    },
+    "PairingCode": {
+      "title": "PairingCode",
+      "description": "Ephemeral 6-digit TV pairing code",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "expiresAt": { "type": "number" },
+        "used": { "type": "boolean" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["code", "createdAt", "expiresAt", "used"]
+    },
+    "AdminProfile": {
+      "title": "AdminProfile",
+      "description": "Admin portal user account",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "super_admin"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "email", "name", "role"]
+    },
+    "AuditLogItem": {
+      "title": "AuditLogItem",
+      "description": "Action audit record",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "details": { "type": "string" },
+        "performedBy": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["action", "targetType", "targetId", "details", "performedBy", "timestamp"]
+    },
+    "DutyRoster": {
+      "title": "DutyRoster",
+      "description": "Departmental duty roster with shift assignments for a specific date",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "description": "Date of duty YYYY-MM-DD" },
+        "departmentId": { "type": "string", "description": "Department ID" },
+        "departmentName": { "type": "string", "description": "Department name" },
+        "supervisorName": { "type": "string", "description": "Name of in-charge supervisor" },
+        "status": { "type": "string", "enum": ["draft", "published"], "description": "Roster status" },
+        "entries": { "type": "string", "description": "Serialized JSON shift assignments" },
+        "notes": { "type": "string", "description": "Supervisor shift handover notes" },
+        "updatedAt": { "type": "number", "description": "Timestamp updated" }
+      },
+      "required": ["date", "departmentId", "departmentName", "status"]
+    },
+    "Supervisor": {
+      "title": "Supervisor",
+      "description": "Department clinical or administrative supervisor profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of supervisor" },
+        "nameDhivehi": { "type": "string", "description": "Full name in Thaana" },
+        "email": { "type": "string", "description": "Supervisor email address" },
+        "role": { "type": "string", "description": "Supervisor title or designation" },
+        "departmentId": { "type": "string", "description": "Assigned department ID" },
+        "departmentName": { "type": "string", "description": "Department name" },
+        "phone": { "type": "string", "description": "Contact telephone" },
+        "active": { "type": "boolean", "description": "Active status" },
+        "createdAt": { "type": "number", "description": "Timestamp created" }
+      },
+      "required": ["name", "role", "departmentId", "departmentName", "active"]
+    },
+    "HospitalMemory": {
+      "title": "HospitalMemory",
+      "description": "Hospital memories, milestone posts, events, and staff recognitions",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Post title in English" },
+        "titleDhivehi": { "type": "string", "description": "Post title in Thaana" },
+        "caption": { "type": "string", "description": "Post narrative in English" },
+        "captionDhivehi": { "type": "string", "description": "Post narrative in Thaana" },
+        "imageUrl": { "type": "string", "description": "Photo attachment URL" },
+        "date": { "type": "string", "description": "Event date YYYY-MM-DD" },
+        "category": { "type": "string", "description": "Category or tag name" },
+        "author": { "type": "string", "description": "Author or poster" },
+        "active": { "type": "boolean", "description": "Display status" },
+        "createdAt": { "type": "number", "description": "Timestamp created" }
+      },
+      "required": ["title", "caption", "imageUrl", "date", "active"]
+    },
+    "WeeklyDepartmentRoster": {
+      "title": "WeeklyDepartmentRoster",
+      "description": "Weekly department duty roster matrix with morning, evening, night shifts and night on-call assignments",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string", "enum": ["attendants", "nurses", "drivers", "customer_service"] },
+        "categoryName": { "type": "string", "description": "Category display name e.g. Attendants" },
+        "categoryNameDhivehi": { "type": "string", "description": "Category display name in Thaana" },
+        "title": { "type": "string", "description": "Full roster title" },
+        "weekRangeText": { "type": "string", "description": "Week date range descriptive text" },
+        "startDate": { "type": "string", "description": "Sunday start date YYYY-MM-DD" },
+        "endDate": { "type": "string", "description": "Saturday end date YYYY-MM-DD" },
+        "updatedAt": { "type": "number", "description": "Timestamp updated" }
+      },
+      "required": ["category", "categoryName", "title", "weekRangeText", "startDate", "endDate"]
+    },
+    "AppUser": {
+      "title": "AppUser",
+      "description": "Application user account with admin-controlled username and PIN credentials and supervisor sync",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "Admin-controlled login username" },
+        "pin": { "type": "string", "description": "Admin-controlled access PIN / passcode" },
+        "fullName": { "type": "string", "description": "User full name" },
+        "fullNameDhivehi": { "type": "string", "description": "User full name in Thaana" },
+        "role": { "type": "string", "enum": ["admin", "supervisor", "staff", "roster_manager"], "description": "System role" },
+        "roles": { "type": "array", "items": { "type": "string" }, "description": "Multiple assigned system and duty roles" },
+        "departmentId": { "type": "string", "description": "Assigned hospital department" },
+        "departmentName": { "type": "string", "description": "Department title" },
+        "designation": { "type": "string", "description": "Professional designation or role" },
+        "phone": { "type": "string", "description": "Contact telephone" },
+        "email": { "type": "string", "description": "Contact email" },
+        "staffId": { "type": "string", "description": "Linked staff record ID" },
+        "supervisorId": { "type": "string", "description": "Linked supervisor record ID in supervisors collection" },
+        "active": { "type": "boolean", "description": "Account active status" },
+        "createdAt": { "type": "number", "description": "Creation timestamp" },
+        "updatedAt": { "type": "number", "description": "Last update timestamp" }
+      },
+      "required": ["username", "pin", "fullName", "role", "active"]
+    },
+    "ShiftHandover": {
+      "title": "ShiftHandover",
+      "description": "Clinical and operational shift handover log between duty supervisors",
+      "type": "object",
+      "properties": {
+        "departmentId": { "type": "string", "description": "Department ID" },
+        "departmentName": { "type": "string", "description": "Department name" },
+        "date": { "type": "string", "description": "Date of handover YYYY-MM-DD" },
+        "shiftType": { "type": "string", "enum": ["morning", "evening", "night", "on_call", "general"] },
+        "supervisorName": { "type": "string", "description": "Supervisor creating handover" },
+        "clinicalSummary": { "type": "string", "description": "Shift clinical summary and patient status" },
+        "criticalPatientsCount": { "type": "number", "description": "Number of critical cases" },
+        "bedOccupancy": { "type": "number", "description": "Inpatient bed count" },
+        "emergencyEquipmentChecked": { "type": "boolean", "description": "Emergency equipment checked" },
+        "pendingTasks": { "type": "string", "description": "Tasks for incoming shift" },
+        "outgoingSupervisor": { "type": "string", "description": "Handed over by" },
+        "incomingSupervisor": { "type": "string", "description": "Handed over to" },
+        "acknowledged": { "type": "boolean", "description": "Whether acknowledged by incoming supervisor" },
+        "timestamp": { "type": "number", "description": "Handover record timestamp" }
+      },
+      "required": ["departmentId", "date", "shiftType", "supervisorName", "clinicalSummary"]
+    },
+    "DailyMedia": {
+      "title": "DailyMedia",
+      "description": "Photo or video (movements) of the day displayed fullscreen periodically on TV screens and auto-deleted the next day",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["photo", "video"] },
+        "mediaUrl": { "type": "string", "description": "Media data URL or resource URL" },
+        "thumbnailUrl": { "type": "string", "description": "Optional preview thumbnail" },
+        "fileName": { "type": "string", "description": "Original file name" },
+        "title": { "type": "string", "description": "Media title / headline" },
+        "titleDhivehi": { "type": "string", "description": "Media title in Thaana" },
+        "caption": { "type": "string", "description": "Media narrative or context" },
+        "captionDhivehi": { "type": "string", "description": "Media narrative in Thaana" },
+        "date": { "type": "string", "description": "Active day YYYY-MM-DD" },
+        "intervalMinutes": { "type": "number", "description": "Display interval frequency in minutes e.g. 60" },
+        "photoDurationSeconds": { "type": "number", "description": "Display duration for photos in seconds e.g. 60" },
+        "videoDurationSeconds": { "type": "number", "description": "Video duration in seconds" },
+        "playVideoFullLength": { "type": "boolean", "description": "Whether video duration should follow natural video length" },
+        "autoPlayMuted": { "type": "boolean", "description": "Whether video auto-plays muted" },
+        "active": { "type": "boolean", "description": "Active broadcast status" },
+        "isChunked": { "type": "boolean", "description": "Whether media URL is stored in subcollection chunks" },
+        "totalChunks": { "type": "number", "description": "Total subcollection chunks" },
+        "createdAt": { "type": "number", "description": "Creation epoch" },
+        "updatedAt": { "type": "number", "description": "Update epoch" }
+      },
+      "required": ["type", "title", "date", "intervalMinutes", "photoDurationSeconds", "active"]
+    },
+    "MediaChunk": {
+      "title": "MediaChunk",
+      "description": "Subcollection chunk for large media files",
+      "type": "object",
+      "properties": {
+        "index": { "type": "number", "description": "0-based chunk order" },
+        "data": { "type": "string", "description": "Base64 partial segment" },
+        "total": { "type": "number", "description": "Total chunks count" }
+      },
+      "required": ["index", "data"]
+    },
+    "PublicHoliday": {
+      "title": "PublicHoliday",
+      "description": "Public holiday dates for roster highlighting and holiday shift calculations",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Holiday name in English" },
+        "nameDhivehi": { "type": "string", "description": "Holiday name in Thaana script" },
+        "date": { "type": "string", "description": "Holiday date YYYY-MM-DD" },
+        "isRecurring": { "type": "boolean", "description": "Whether recurring annually" },
+        "description": { "type": "string", "description": "Optional description or category" },
+        "active": { "type": "boolean", "description": "Whether holiday is active" },
+        "createdAt": { "type": "number", "description": "Creation epoch" },
+        "updatedAt": { "type": "number", "description": "Update epoch" }
+      },
+      "required": ["name", "date", "active"]
+    }
+  },
+  "firestore": {
+    "/publicHolidays/{holidayId}": {
+      "schema": "PublicHoliday",
+      "description": "Public holiday list for roster highlighting"
+    },
+    "/settings/{settingId}": {
+      "schema": "AppSettings",
+      "description": "Global and presentation settings"
+    },
+    "/departments/{deptId}": {
+      "schema": "Department",
+      "description": "Hospital medical and operational departments"
+    },
+    "/leaveCategories/{categoryId}": {
+      "schema": "LeaveCategory",
+      "description": "Types of leave categories"
+    },
+    "/staff/{staffId}": {
+      "schema": "Staff",
+      "description": "Staff employee directory records"
+    },
+    "/leaveRecords/{recordId}": {
+      "schema": "LeaveRecord",
+      "description": "Staff scheduled leave records"
+    },
+    "/notices/{noticeId}": {
+      "schema": "Notice",
+      "description": "Announcements and notices"
+    },
+    "/pairedDisplays/{displayId}": {
+      "schema": "PairedDisplay",
+      "description": "Paired TV display screens and heartbeats"
+    },
+    "/pairingCodes/{codeId}": {
+      "schema": "PairingCode",
+      "description": "Temporary display pairing codes"
+    },
+    "/adminProfiles/{profileId}": {
+      "schema": "AdminProfile",
+      "description": "Administrator account profiles"
+    },
+    "/auditLog/{logId}": {
+      "schema": "AuditLogItem",
+      "description": "System activity audit logs"
+    },
+    "/dutyRosters/{rosterId}": {
+      "schema": "DutyRoster",
+      "description": "Departmental duty rosters"
+    },
+    "/supervisors/{supervisorId}": {
+      "schema": "Supervisor",
+      "description": "Department duty supervisors"
+    },
+    "/memories/{memoryId}": {
+      "schema": "HospitalMemory",
+      "description": "Hospital milestone posts and memories"
+    },
+    "/weeklyRosters/{rosterId}": {
+      "schema": "WeeklyDepartmentRoster",
+      "description": "Weekly department duty rosters"
+    },
+    "/users/{userId}": {
+      "schema": "AppUser",
+      "description": "Application users with admin-controlled credentials and supervisor role mapping"
+    },
+    "/handovers/{handoverId}": {
+      "schema": "ShiftHandover",
+      "description": "Clinical and shift handover notes between supervisors"
+    },
+    "/dailyMedia/{mediaId}": {
+      "schema": "DailyMedia",
+      "description": "Daily photo or video movements broadcast schedule"
+    },
+    "/dailyMedia/{mediaId}/chunks/{chunkId}": {
+      "schema": "MediaChunk",
+      "description": "Binary or base64 segments for large media items"
+    },
+    "/dutyRequests/{requestId}": {
+      "schema": "DutyRequest",
+      "description": "Staff duty shift requests and approval records"
+    },
+    "/staffAllowanceRates/{rateId}": {
+      "schema": "StaffAllowanceRate",
+      "description": "Staff duty allowance rate configuration per staff member"
+    },
+    "/dutyAllowanceSheets/{sheetId}": {
+      "schema": "DutyAllowanceSheet",
+      "description": "Generated shift duty allowance sheets and reports"
+    }
+  }
+}

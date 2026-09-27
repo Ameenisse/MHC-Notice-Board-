@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Application collections with public TV display reads & operational writes
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+
+    match /leaveCategories/{categoryId} {
+      allow read, write: if true;
+    }
+
+    match /departments/{deptId} {
+      allow read, write: if true;
+    }
+
+    match /staff/{staffId} {
+      allow read, write: if true;
+    }
+
+    match /leaveRecords/{recordId} {
+      allow read, write: if true;
+    }
+
+    match /notices/{noticeId} {
+      allow read, write: if true;
+    }
+
+    match /pairingCodes/{codeId} {
+      allow read, write: if true;
+    }
+
+    match /pairedDisplays/{displayId} {
+      allow read, write: if true;
+    }
+
+    match /adminProfiles/{profileId} {
+      allow read, write: if true;
+    }
+
+    match /auditLog/{logId} {
+      allow read, write: if true;
+    }
+
+    match /dutyRosters/{rosterId} {
+      allow read, write: if true;
+    }
+
+    match /supervisors/{supervisorId} {
+      allow read, write: if true;
+    }
+
+    match /memories/{memoryId} {
+      allow read, write: if true;
+    }
+
+    match /weeklyRosters/{rosterId} {
+      allow read, write: if true;
+    }
+
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    match /handovers/{handoverId} {
+      allow read, write: if true;
+    }
+
+    match /dailyMedia/{mediaId} {
+      allow read, write: if true;
+
+      match /chunks/{chunkId} {
+        allow read, write: if true;
+      }
+    }
+
+    match /publicHolidays/{holidayId} {
+      allow read, write: if true;
+    }
+
+    match /dutyRequests/{requestId} {
+      allow read, write: if true;
+    }
+
+    match /staffAllowanceRates/{rateId} {
+      allow read, write: if true;
+    }
+
+    match /dutyAllowanceSheets/{sheetId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/* MV_Waheed Official Dhivehi / Thaana Font */
+@font-face {
+  font-family: 'MV_Waheed';
+  src: url('https://dhivehi.mv/fonts/data/df/MV_Waheed.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-thaana: 'MV_Waheed', 'Noto Sans Thaana', 'Faruma', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #0f172a;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Automatically apply MV_Waheed font to any RTL container or Thaana element */
+  [dir="rtl"],
+  .font-thaana {
+    font-family: 'MV_Waheed', var(--font-thaana), var(--font-sans) !important;
+  }
+}
+
+/* TV Board Animations & Typography */
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.animate-ticker {
+  animation: ticker 25s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dedicated Print Media Formatting Rules */
+@media print {
+  @page {
+    size: landscape A4;
+    margin: 6mm 8mm 8mm 8mm;
+  }
+
+  *, *:before, *:after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Automatically hide non-essential navigation, headers, footers and control toolbars */
+  .no-print,
+  aside,
+  nav,
+  header,
+  footer,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Optimal page breaking per department roster sheet */
+  .print-sheet,
+  .page-sheet {
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+  }
+
+  .print-sheet:last-child,
+  .page-sheet:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    width: 100% !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+

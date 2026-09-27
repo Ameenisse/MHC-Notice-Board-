@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 520" width="100%" height="100%">
+  <defs>
+    <!-- Soft glow filter -->
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#008080" flood-opacity="0.15" />
+    </filter>
+    
+    <!-- Path for the curved motto text "Benevolence to humanity" -->
+    <path id="mottoArc" d="M 125,175 A 140,140 0 0,1 375,175" fill="none" />
+    
+    <!-- Subtle gradient for the circular badge -->
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f0fdfa" />
+    </linearGradient>
+
+    <!-- Vibrant Teal / Cyan Brand Color -->
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00b4b6" />
+      <stop offset="100%" stop-color="#009698" />
+    </linearGradient>
+  </defs>
+
+  <!-- Circular background badge (pure clean white with soft subtle border) -->
+  <circle cx="250" cy="190" r="145" fill="url(#badgeGrad)" />
+
+  <!-- Outer Ring with Dynamic Healthcare Wave -->
+  <!-- Top and right main circular border -->
+  <path
+    d="M 135,115 A 142,142 0 1,1 365,265"
+    fill="none"
+    stroke="#00b4b6"
+    stroke-width="16"
+    stroke-linecap="round"
+  />
+
+  <!-- Sweeping fluid dynamic wave flourish at bottom left -->
+  <path
+    d="M 132,142 C 145,190 120,240 145,275 C 170,305 210,325 270,322 C 320,320 365,285 385,245 C 360,270 315,296 265,295 C 205,294 165,268 152,225 C 142,192 145,160 132,142 Z"
+    fill="#00b4b6"
+  />
+  
+  <!-- Secondary wave arc layer underneath -->
+  <path
+    d="M 135,225 C 140,265 170,305 230,325 C 280,340 330,325 365,295 C 330,318 285,324 240,312 C 185,298 152,260 142,220 Z"
+    fill="#00b4b6"
+    opacity="0.9"
+  />
+
+  <!-- Motto along the upper curve: "Benevolence to humanity" -->
+  <text font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14.5" font-weight="700" fill="#009698" letter-spacing="1">
+    <textPath href="#mottoArc" startOffset="50%" text-anchor="middle">
+      Benevolence to humanity
+    </textPath>
+  </text>
+
+  <!-- Central Intertwined Heart Knot Emblem -->
+  <g transform="translate(250, 190) scale(0.95) translate(-250, -190)">
+    <!-- Primary heart loops formed by ribbon -->
+    <!-- Left heart loop -->
+    <path
+      d="M 250,155 C 235,115 175,105 160,150 C 145,195 200,240 240,270 C 248,276 252,276 260,270 C 300,240 355,195 340,150 C 325,105 265,115 250,155 Z"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="15"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    />
+
+    <!-- Inner interlocking ribbon loops (Celtic knot styling) -->
+    <path
+      d="M 215,145 C 230,125 270,125 285,145 C 305,170 295,200 270,225 C 255,240 245,240 230,225 C 205,200 195,170 215,145 Z"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="11"
+      stroke-linecap="round"
+    />
+
+    <!-- Decorative central curls / knot flourishes -->
+    <!-- Left inner decorative curl -->
+    <path
+      d="M 215,160 C 200,165 190,185 205,200 C 220,215 238,205 235,185"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="9"
+      stroke-linecap="round"
+    />
+
+    <!-- Right inner decorative curl -->
+    <path
+      d="M 285,160 C 300,165 310,185 295,200 C 280,215 262,205 265,185"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="9"
+      stroke-linecap="round"
+    />
+
+    <!-- Intertwined lower knot tails with graceful spiral terminal -->
+    <!-- Left bottom curl -->
+    <path
+      d="M 235,215 C 230,245 220,270 250,285 C 265,292 278,280 270,265 C 262,252 245,258 248,272"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+
+    <!-- Right bottom ribbon intertwine -->
+    <path
+      d="M 265,215 C 270,240 282,260 275,280"
+      fill="none"
+      stroke="#00b4b6"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+  </g>
+
+  <!-- Large Bold "MHC" Acronym Beneath the Emblem -->
+  <text
+    x="250"
+    y="445"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="112"
+    font-weight="900"
+    letter-spacing="2"
+    fill="#009cb0"
+  >
+    MHC
+  </text>
+</svg>

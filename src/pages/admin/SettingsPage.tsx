@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import {
   getCategoriesList,
@@ -72,29 +72,48 @@ import {
   Sun,
   Moon,
   Calendar,
+  ShieldAlert,
+  ChevronRight,
 } from 'lucide-react';
 import { PublicHolidaysManagement } from '../../components/admin/PublicHolidaysManagement';
 
 interface SettingsPageProps {
-  defaultTab?: 'general' | 'roster' | 'departments' | 'display' | 'categories' | 'pairing' | 'audit' | 'data';
+  defaultTab?: 'roster' | 'departments' | 'display' | 'categories' | 'pairing' | 'audit' | 'data' | 'general';
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const { settings, refreshSettings, updateAppSettings, currentUser, isDemoMode } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Read tab parameter from URL query if available
   const tabParam = searchParams.get('tab');
-  const validTabs = ['general', 'roster', 'departments', 'display', 'categories', 'pairing', 'audit', 'data'] as const;
+  const validTabs = ['roster', 'departments', 'display', 'categories', 'pairing'] as const;
   type TabType = typeof validTabs[number];
 
+  // Immediately redirect moved sections to Super Admin Panel
+  useEffect(() => {
+    if (tabParam === 'general' || tabParam === 'identity' || (defaultTab as string) === 'general') {
+      navigate('/admin/super-admin?tab=identity', { replace: true });
+    } else if (tabParam === 'audit' || tabParam === 'audit-log' || (defaultTab as string) === 'audit') {
+      navigate('/admin/super-admin?tab=audit', { replace: true });
+    } else if (
+      tabParam === 'data' ||
+      tabParam === 'database' ||
+      tabParam === 'backup' ||
+      (defaultTab as string) === 'data'
+    ) {
+      navigate('/admin/super-admin?tab=database', { replace: true });
+    }
+  }, [tabParam, defaultTab, navigate]);
+
   const getInitialTab = (): TabType => {
-    if (defaultTab && validTabs.includes(defaultTab)) return defaultTab;
-    if (tabParam === 'roster' || tabParam === 'roaster' || tabParam === 'holidays') return 'roster';
-    if (tabParam === 'displays' || tabParam === 'tv') return 'pairing';
+    if (defaultTab && (validTabs as readonly string[]).includes(defaultTab)) return defaultTab as TabType;
+    if (tabParam === 'displays' || tabParam === 'tv' || tabParam === 'pairing') return 'pairing';
     if (tabParam === 'departments' || tabParam === 'department' || tabParam === 'dept') return 'departments';
-    if (tabParam && validTabs.includes(tabParam as TabType)) return tabParam as TabType;
-    return 'general';
+    if (tabParam === 'display' || tabParam === 'theme') return 'display';
+    if (tabParam === 'categories' || tabParam === 'category') return 'categories';
+    return 'roster';
   };
 
   // Active section tab
@@ -102,14 +121,14 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
 
   // Sync tab if defaultTab or searchParam changes
   useEffect(() => {
-    if (defaultTab && validTabs.includes(defaultTab)) {
-      setActiveTab(defaultTab);
+    if (defaultTab && (validTabs as readonly string[]).includes(defaultTab)) {
+      setActiveTab(defaultTab as TabType);
     } else if (tabParam) {
       if (tabParam === 'roster' || tabParam === 'roaster' || tabParam === 'holidays') {
         setActiveTab('roster');
-      } else if (tabParam === 'displays' || tabParam === 'tv') {
+      } else if (tabParam === 'displays' || tabParam === 'tv' || tabParam === 'pairing') {
         setActiveTab('pairing');
-      } else if (validTabs.includes(tabParam as TabType)) {
+      } else if ((validTabs as readonly string[]).includes(tabParam)) {
         setActiveTab(tabParam as TabType);
       }
     }
@@ -900,39 +919,50 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
             )}
           </button>
 
-          <button
-            onClick={handleExportBackup}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition flex items-center gap-2 shadow-xs cursor-pointer"
+          <Link
+            to="/admin/super-admin"
+            className="px-4 py-2.5 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-xs cursor-pointer"
+            title="Open Super Admin Governance Panel"
           >
-            <FileDown className="w-4 h-4 text-amber-400" />
-            <span>Export Complete Backup</span>
-          </button>
+            <ShieldAlert className="w-4 h-4 text-slate-950" />
+            <span>Super Admin Panel</span>
+          </Link>
         </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex flex-wrap sm:flex-nowrap gap-1 overflow-x-auto">
-        <button
-          id="tab-btn-general"
-          type="button"
-          onClick={() => handleTabSelect('general')}
-          className={`flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-            activeTab === 'general'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-          }`}
+      {/* Super Admin Relocation Notice Banner */}
+      <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-800 shadow-2xs">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2.5 rounded-xl bg-amber-100 text-amber-800 shrink-0">
+            <ShieldAlert className="w-5 h-5 text-amber-700" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+              Institutional Identity, Audit Logs &amp; Database Backup Relocated
+            </p>
+            <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+              These governance controls are now isolated in the Super Admin Panel. (In-built: <strong className="font-mono text-amber-900">user: appadmin</strong> &bull; <strong className="font-mono text-amber-900">pin: 2026</strong>).
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/admin/super-admin"
+          className="px-3.5 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center justify-center gap-1.5 shadow-xs shrink-0"
         >
-          <SettingsIcon className="w-4 h-4 text-teal-600" />
-          <span>Institutional Identity</span>
-        </button>
+          <span>Open Super Admin</span>
+          <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
+        </Link>
+      </div>
 
+      {/* Tabs Navigation (Operational Settings Only) */}
+      <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex flex-wrap sm:flex-nowrap gap-1 overflow-x-auto">
         <button
           id="tab-btn-roster"
           type="button"
           onClick={() => handleTabSelect('roster')}
           className={`flex-1 min-w-[160px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
             activeTab === 'roster'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
+              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80 font-black'
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
@@ -946,7 +976,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
           onClick={() => handleTabSelect('departments')}
           className={`flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
             activeTab === 'departments'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
+              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80 font-black'
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
@@ -969,7 +999,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
           onClick={() => handleTabSelect('display')}
           className={`flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
             activeTab === 'display'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
+              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80 font-black'
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
@@ -983,7 +1013,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
           onClick={() => handleTabSelect('categories')}
           className={`flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
             activeTab === 'categories'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
+              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80 font-black'
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
           }`}
         >
@@ -997,7 +1027,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
           onClick={() => handleTabSelect('pairing')}
           className={`flex-1 min-w-[160px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
             activeTab === 'pairing'
-              ? 'bg-teal-700 text-white shadow-md shadow-teal-900/20'
+              ? 'bg-teal-700 text-white shadow-md shadow-teal-900/20 font-black'
               : 'text-teal-900 bg-teal-50/80 hover:bg-teal-100 hover:text-teal-950 font-extrabold border border-teal-200/70'
           }`}
         >
@@ -1012,34 +1042,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
           >
             {pairedDisplays.filter((d) => d.status === 'active' || (d as any).active).length}
           </span>
-        </button>
-
-        <button
-          id="tab-btn-audit"
-          type="button"
-          onClick={() => handleTabSelect('audit')}
-          className={`flex-1 min-w-[120px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-            activeTab === 'audit'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-          }`}
-        >
-          <History className="w-4 h-4 text-teal-600" />
-          <span>Audit Logs</span>
-        </button>
-
-        <button
-          id="tab-btn-data"
-          type="button"
-          onClick={() => handleTabSelect('data')}
-          className={`flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-            activeTab === 'data'
-              ? 'bg-white text-teal-800 shadow-xs border border-slate-200/80'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-          }`}
-        >
-          <Database className="w-4 h-4 text-teal-600" />
-          <span>Database &amp; Backup</span>
         </button>
       </div>
 
@@ -1058,9 +1060,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
       )}
 
       {/* =========================================================
-          TAB 1: GENERAL IDENTITY
+          TAB 1: GENERAL IDENTITY (RELOCATED TO SUPER ADMIN)
           ========================================================= */}
-      {activeTab === 'general' && (
+      {activeTab === ('general' as any) && (
+        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+            <Building2 className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900">Institutional Identity Relocated</h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            Facility names, logos, branding, and localized Thaana identities are protected and managed within the dedicated Super Admin Panel.
+          </p>
+          <Link
+            to="/admin/super-admin?tab=identity"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 shadow-md transition"
+          >
+            <span>Open Institutional Identity in Super Admin</span>
+            <ChevronRight className="w-4 h-4 stroke-[3]" />
+          </Link>
+        </div>
+      )}
+      {false && (
         <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
           <h2 className="text-lg font-black text-slate-900 border-b border-slate-100 pb-3">
             Organization Identity & Localization
@@ -2523,9 +2543,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
       )}
 
       {/* =========================================================
-          TAB 5: AUDIT LOGS
+          TAB 5: AUDIT LOGS (RELOCATED TO SUPER ADMIN)
           ========================================================= */}
-      {activeTab === 'audit' && (
+      {activeTab === ('audit' as any) && (
+        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+            <History className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900">Audit Logs Relocated</h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            The full administrative audit trail, tracking operator logins, shift modifications, and data changes, is now securely located in the Super Admin Panel.
+          </p>
+          <Link
+            to="/admin/super-admin?tab=audit"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 shadow-md transition"
+          >
+            <span>Open Audit Logs in Super Admin</span>
+            <ChevronRight className="w-4 h-4 stroke-[3]" />
+          </Link>
+        </div>
+      )}
+      {false && (
         <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
@@ -2571,9 +2609,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
       )}
 
       {/* =========================================================
-          TAB 6: DEMO DATA & BACKUP
+          TAB 6: DEMO DATA & BACKUP (RELOCATED TO SUPER ADMIN)
           ========================================================= */}
-      {activeTab === 'data' && (
+      {activeTab === ('data' as any) && (
+        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+            <Database className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900">Database &amp; Backup Relocated</h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            Full system database snapshots, JSON export/restore operations, and factory baseline wipe tools have been relocated to the Super Admin Panel.
+          </p>
+          <Link
+            to="/admin/super-admin?tab=database"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 shadow-md transition"
+          >
+            <span>Open Database &amp; Backup in Super Admin</span>
+            <ChevronRight className="w-4 h-4 stroke-[3]" />
+          </Link>
+        </div>
+      )}
+      {false && (
         <div className="space-y-6">
           {/* Feedback messages */}
           {seedDemoSuccess && (

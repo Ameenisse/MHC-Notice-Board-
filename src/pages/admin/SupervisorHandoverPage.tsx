@@ -58,6 +58,29 @@ export const SupervisorHandoverPage: React.FC = () => {
 
   const todayStr = getTodayString('Indian/Maldives');
 
+  const isGlobalAdmin =
+    adminProfile?.role === 'super_admin' ||
+    (appUser?.role === 'admin' && !appUser?.departmentId) ||
+    appUser?.username === 'admin' ||
+    appUser?.username === 'appadmin';
+
+  const isSupervisorOrManager =
+    appUser?.role === 'supervisor' ||
+    appUser?.role === 'roster_manager' ||
+    appUser?.roles?.some((r) => r === 'supervisor' || r === 'roster_manager');
+
+  const isRestrictedToDept = !isGlobalAdmin && isSupervisorOrManager && !!(appUser?.departmentId || appUser?.departmentName);
+
+  const availableDepartments = React.useMemo(() => {
+    if (!isRestrictedToDept) return departments;
+    const filtered = departments.filter(
+      (d) =>
+        d.id === appUser?.departmentId ||
+        d.name.toLowerCase() === (appUser?.departmentName || '').toLowerCase()
+    );
+    return filtered.length > 0 ? filtered : departments;
+  }, [departments, isRestrictedToDept, appUser]);
+
   // Handover form state
   const [formData, setFormData] = useState<{
     id?: string;
@@ -111,7 +134,9 @@ export const SupervisorHandoverPage: React.FC = () => {
 
       const activeSups = sups.filter((s) => s.active);
       const userDept = appUser?.departmentId;
-      const initialDept = depts.find((d) => d.id === userDept) || depts[0];
+      const initialDept = isRestrictedToDept
+        ? depts.find((d) => d.id === userDept || d.name.toLowerCase() === (appUser?.departmentName || '').toLowerCase()) || depts[0]
+        : depts.find((d) => d.id === userDept) || depts[0];
 
       if (initialDept) {
         setSelectedDeptId(initialDept.id);
@@ -136,6 +161,10 @@ export const SupervisorHandoverPage: React.FC = () => {
   };
 
   const handleDeptChange = (deptId: string) => {
+    if (isRestrictedToDept && availableDepartments.length > 0 && deptId !== availableDepartments[0]?.id) {
+      alert(`As a supervisor, you can only log handovers for your assigned department (${availableDepartments[0]?.name}).`);
+      return;
+    }
     setSelectedDeptId(deptId);
     const found = departments.find((d) => d.id === deptId);
     const deptSups = supervisors.filter((s) => s.departmentId === deptId && s.active);
@@ -153,6 +182,11 @@ export const SupervisorHandoverPage: React.FC = () => {
     e.preventDefault();
     if (!formData.clinicalSummary.trim()) {
       alert('Please provide a clinical / operational shift summary.');
+      return;
+    }
+
+    if (isRestrictedToDept && availableDepartments.length > 0 && formData.departmentId !== availableDepartments[0]?.id) {
+      alert(`You are only authorized to log shift handover for your assigned department (${availableDepartments[0]?.name}).`);
       return;
     }
 
@@ -261,11 +295,21 @@ export const SupervisorHandoverPage: React.FC = () => {
         </div>
       )}
 
+      {/* Supervisor Department Restriction Banner */}
+      {isRestrictedToDept && (
+        <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-xl text-xs font-bold flex items-center gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>
+            Supervisor Role Restriction: You are authorized to log shift handovers for your assigned department (<strong>{availableDepartments[0]?.name || appUser?.departmentName}</strong>) only.
+          </span>
+        </div>
+      )}
+
       {/* Department Selector Pills */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Select Active Department
+            Select Active Department {isRestrictedToDept && '(Locked to Assigned)'}
           </span>
           <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
             Today: {todayStr}
@@ -273,7 +317,7 @@ export const SupervisorHandoverPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {departments.map((dept) => {
+          {availableDepartments.map((dept) => {
             const isSelected = selectedDeptId === dept.id;
             return (
               <button

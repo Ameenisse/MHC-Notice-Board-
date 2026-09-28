@@ -71,8 +71,21 @@ export const DutyRosterPage: React.FC<{
   defaultTab?: 'rosters' | 'supervisors' | 'duty_requests' | 'allowance';
   isPrintInitial?: boolean;
 }> = ({ defaultTab = 'rosters', isPrintInitial = false }) => {
-  const { isDemoMode, currentUser, settings } = useApp();
+  const { isDemoMode, currentUser, settings, appUser, adminProfile } = useApp();
   const tz = settings.timezone || 'Indian/Maldives';
+
+  const isGlobalAdmin =
+    adminProfile?.role === 'super_admin' ||
+    (appUser?.role === 'admin' && !appUser?.departmentId) ||
+    appUser?.username === 'admin' ||
+    appUser?.username === 'appadmin';
+
+  const isSupervisorOrManager =
+    appUser?.role === 'supervisor' ||
+    appUser?.role === 'roster_manager' ||
+    appUser?.roles?.some((r) => r === 'supervisor' || r === 'roster_manager');
+
+  const isRestrictedToDept = !isGlobalAdmin && isSupervisorOrManager && !!(appUser?.departmentId || appUser?.departmentName);
 
   const [activeTab, setActiveTab] = useState<'rosters' | 'supervisors' | 'duty_requests' | 'allowance'>(defaultTab);
   const [rosterSubView, setRosterSubView] = useState<'weekly' | 'daily'>('weekly');
@@ -88,6 +101,16 @@ export const DutyRosterPage: React.FC<{
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  const availableDepartments = React.useMemo(() => {
+    if (!isRestrictedToDept) return departments;
+    const filtered = departments.filter(
+      (d) =>
+        d.id === appUser?.departmentId ||
+        d.name.toLowerCase() === (appUser?.departmentName || '').toLowerCase()
+    );
+    return filtered.length > 0 ? filtered : departments;
+  }, [departments, isRestrictedToDept, appUser]);
 
   // Dedicated Print View State
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(isPrintInitial);
@@ -406,6 +429,10 @@ export const DutyRosterPage: React.FC<{
   // Roster Editor Handlers
   const handleOpenRosterModal = (roster?: DepartmentRoster) => {
     if (roster) {
+      if (isRestrictedToDept && availableDepartments.length > 0 && roster.departmentId !== availableDepartments[0]?.id) {
+        alert(`You are only authorized to edit rosters for your assigned department (${availableDepartments[0]?.name}).`);
+        return;
+      }
       setEditingRoster(roster);
       setSelectedDeptId(roster.departmentId);
       setRosterSupervisorId(roster.supervisorId || '');
@@ -414,7 +441,7 @@ export const DutyRosterPage: React.FC<{
       setRosterEntries([...roster.entries]);
     } else {
       setEditingRoster(null);
-      const defaultDept = departments[0];
+      const defaultDept = isRestrictedToDept && availableDepartments.length > 0 ? availableDepartments[0] : departments[0];
       const deptId = defaultDept ? defaultDept.id : '';
       setSelectedDeptId(deptId);
 
@@ -484,6 +511,11 @@ export const DutyRosterPage: React.FC<{
       notes: rosterNotes,
       entries: rosterEntries,
     };
+
+    if (isRestrictedToDept && availableDepartments.length > 0 && selectedDeptId !== availableDepartments[0]?.id) {
+      alert(`You are only authorized to save duty roster for your assigned department (${availableDepartments[0]?.name}).`);
+      return;
+    }
 
     try {
       await saveDutyRoster(rosterPayload, currentUser?.email || 'admin@mhc.gov.mv', isDemoMode);
@@ -563,6 +595,16 @@ export const DutyRosterPage: React.FC<{
           )}
         </div>
       </div>
+
+      {/* Supervisor Department Restriction Notification Banner */}
+      {isRestrictedToDept && (
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 rounded-2xl flex items-center gap-3 text-xs font-bold">
+          <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0" />
+          <span>
+            Supervisor Role Restriction Active: You are authorized to create, edit rosters, and review duty requests for your assigned department (<strong>{availableDepartments[0]?.name || appUser?.departmentName}</strong>) only.
+          </span>
+        </div>
+      )}
 
       {/* Action Notification */}
       {actionMessage && (
@@ -1722,20 +1764,23 @@ export const DutyRosterPage: React.FC<{
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div>
                   <label className="block text-xs font-black uppercase text-slate-500 mb-1">
-                    Department *
+                    Department * {isRestrictedToDept && '(Locked)'}
                   </label>
                   <select
                     value={selectedDeptId}
+                    disabled={isRestrictedToDept}
                     onChange={(e) => {
                       setSelectedDeptId(e.target.value);
                       const matching = supervisors.find((s) => s.departmentId === e.target.value && s.active);
                       if (matching) setRosterSupervisorId(matching.id);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 bg-white"
+                    className={`w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 ${
+                      isRestrictedToDept ? 'bg-slate-100 cursor-not-allowed text-slate-500' : 'bg-white'
+                    }`}
                   >
-                    {departments.map((d) => (
+                    {availableDepartments.map((d) => (
                       <option key={d.id} value={d.id}>
-                        {d.name}
+                        {d.name} {isRestrictedToDept ? '(Assigned)' : ''}
                       </option>
                     ))}
                   </select>

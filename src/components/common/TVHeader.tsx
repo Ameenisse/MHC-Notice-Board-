@@ -6,7 +6,7 @@ import {
   formatTimeAgo,
 } from '../../utils/dateUtils';
 import { Link } from 'react-router-dom';
-import { Maximize, Minimize, Wifi, WifiOff, RefreshCw, Sparkles, LogIn } from 'lucide-react';
+import { Maximize, Minimize, Wifi, WifiOff, RefreshCw, Sparkles, LogIn, Home } from 'lucide-react';
 import { MHCLogo } from './MHCLogo';
 import { PWAInstallButton } from './PWAInstallButton';
 
@@ -261,6 +261,25 @@ export const TVHeader: React.FC<TVHeaderProps> = ({
             >
               {/* PWA Install Button for Offline TV App */}
               <PWAInstallButton variant="tv" />
+
+              {/* Home / Display refresh link */}
+              <Link
+                to="/display"
+                onClick={(e) => {
+                  if (onManualRefresh) {
+                    onManualRefresh();
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border shadow-2xs ${
+                  isNightMode
+                    ? 'bg-slate-900 hover:bg-slate-800 text-teal-300 border-slate-700 hover:border-teal-500'
+                    : 'bg-white hover:bg-slate-50 text-teal-800 border-slate-200 hover:border-teal-600'
+                }`}
+                title="Return to Home Display"
+              >
+                <Home className="w-3.5 h-3.5 text-teal-500" />
+                <span className="hidden sm:inline">Home</span>
+              </Link>
 
               {/* Go to Login Page button */}
               <Link

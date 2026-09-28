@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { AdminNavbar } from '../common/AdminNavbar';
+import { AdminSidebar } from './AdminSidebar';
+import { AdminHeader } from './AdminHeader';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 
 export const AdminLayout: React.FC = () => {
-  const { currentUser, isAdmin, isAuthLoading } = useApp();
+  const { currentUser, isAdmin, isAuthLoading, settings } = useApp();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
   if (isAuthLoading) {
@@ -25,28 +27,35 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
-      {/* Admin Top Navigation */}
-      <AdminNavbar />
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100">
+      {/* Sidebar Navigation */}
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Content Area */}
-      <main className="flex-1">
-        <ErrorBoundary fallbackTitle="Admin Section Encountered an Error">
-          <Outlet />
-        </ErrorBoundary>
-      </main>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+        {/* Top Header */}
+        <AdminHeader onToggleSidebar={() => setSidebarOpen(true)} />
 
-      {/* Institutional Admin Footer */}
-      <footer className="py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-500 no-print">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>
-            Maduvvari Health Centre &bull; Staff Leave & Noticeboard System
-          </p>
-          <p className="text-slate-400">
-            Powered by Cloud Firestore & Firebase Auth &bull; Maldives Time (UTC+05:00)
-          </p>
-        </div>
-      </footer>
+        {/* Dynamic Route Content */}
+        <main className="flex-1">
+          <ErrorBoundary fallbackTitle="Admin Section Encountered an Error">
+            <Outlet />
+          </ErrorBoundary>
+        </main>
+
+        {/* Institutional Admin Footer */}
+        <footer className="py-5 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center text-xs text-slate-500 no-print">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>
+              {settings.orgName} &bull; Staff Leave &amp; Noticeboard System
+            </p>
+            <p className="text-slate-400">
+              Powered by Cloud Firestore &amp; Firebase Auth &bull; Maldives Time (UTC+05:00)
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 };
+

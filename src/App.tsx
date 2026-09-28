@@ -14,6 +14,7 @@ import { NoticesPage } from './pages/admin/NoticesPage';
 import { MemoriesPage } from './pages/admin/MemoriesPage';
 import { DailyMediaPage } from './pages/admin/DailyMediaPage';
 import { SettingsPage } from './pages/admin/SettingsPage';
+import { SuperAdminPage } from './pages/admin/SuperAdminPage';
 import { StaffPanelPage } from './pages/staff/StaffPanelPage';
 
 export default function App() {
@@ -27,6 +28,9 @@ export default function App() {
           {/* TV Display Terminal */}
           <Route path="/display" element={<DisplayPage />} />
 
+          {/* Super Admin Direct Entry */}
+          <Route path="/superadmin" element={<Navigate to="/admin/super-admin" replace />} />
+
           {/* Staffs Portal (Weekly Roster, Individual Roster, Duty Requests, Notices) */}
           <Route path="/staff" element={<StaffPanelPage />} />
           <Route path="/staff-portal" element={<StaffPanelPage />} />
@@ -38,6 +42,9 @@ export default function App() {
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<DashboardPage />} />
+            {/* Super Admin Governance Route (In-built user: appadmin, pin: 2026) */}
+            <Route path="super-admin" element={<SuperAdminPage />} />
+            <Route path="superadmin" element={<SuperAdminPage />} />
             <Route path="daily-media" element={<DailyMediaPage />} />
             <Route path="movements" element={<DailyMediaPage />} />
             <Route path="users" element={<UserManagementPage />} />
@@ -54,6 +61,12 @@ export default function App() {
             <Route path="memories" element={<MemoriesPage />} />
             <Route path="displays" element={<SettingsPage defaultTab="pairing" />} />
             <Route path="pairing" element={<SettingsPage defaultTab="pairing" />} />
+            {/* Database & Backup, Audit Logs, and Institutional Identity moved to Super Admin Panel */}
+            <Route path="audit" element={<Navigate to="/admin/super-admin?tab=audit" replace />} />
+            <Route path="audit-log" element={<Navigate to="/admin/super-admin?tab=audit" replace />} />
+            <Route path="database" element={<Navigate to="/admin/super-admin?tab=database" replace />} />
+            <Route path="backup" element={<Navigate to="/admin/super-admin?tab=database" replace />} />
+            <Route path="identity" element={<Navigate to="/admin/super-admin?tab=identity" replace />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 

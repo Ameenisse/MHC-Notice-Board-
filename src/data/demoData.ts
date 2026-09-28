@@ -122,6 +122,23 @@ export const DEFAULT_ADMIN_USER: AppUser = {
   updatedAt: 1704067200000,
 };
 
+export const DEFAULT_SUPER_ADMIN_USER: AppUser = {
+  id: 'appadmin',
+  username: 'appadmin',
+  pin: '2026',
+  fullName: 'Super Administrator',
+  fullNameDhivehi: 'ސުޕަރ އެޑްމިނިސްޓްރޭޓަރ',
+  role: 'admin',
+  roles: ['admin', 'supervisor', 'super_admin'],
+  designation: 'Super Administrator',
+  departmentId: 'dept_admin',
+  departmentName: 'Administration',
+  email: 'appadmin@mhc.gov.mv',
+  active: true,
+  createdAt: 1704067200000,
+  updatedAt: 1704067200000,
+};
+
 // All mock/fake arrays are reset to empty
 export const DEMO_STAFF: Staff[] = [];
 
@@ -141,7 +158,7 @@ export function getDemoDutyRosters(_tz = 'Indian/Maldives'): DepartmentRoster[] 
 
 export const DEMO_MEMORIES: HospitalMemory[] = [];
 
-export const DEMO_USERS: AppUser[] = [DEFAULT_ADMIN_USER];
+export const DEMO_USERS: AppUser[] = [DEFAULT_ADMIN_USER, DEFAULT_SUPER_ADMIN_USER];
 
 export const DEMO_HANDOVERS: ShiftHandover[] = [];
 

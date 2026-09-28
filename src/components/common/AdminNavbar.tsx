@@ -20,6 +20,7 @@ import {
   KeyRound,
   ClipboardList,
   Film,
+  Home,
 } from 'lucide-react';
 import { MHCLogo } from './MHCLogo';
 import { PWAInstallButton } from './PWAInstallButton';
@@ -157,15 +158,15 @@ export const AdminNavbar: React.FC = () => {
               )}
             </button>
 
-            {/* Language Toggle */}
-            <button
-              onClick={() => setLanguage(language === 'en' ? 'dv' : 'en')}
+            {/* Home Link */}
+            <Link
+              to="/display"
               className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200"
-              title="Switch English / ދިވެހި"
+              title="Return to TV Display / Home"
             >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{language === 'en' ? 'EN' : 'ދިވެހި'}</span>
-            </button>
+              <Home className="w-3.5 h-3.5 text-teal-600" />
+              <span>Home</span>
+            </Link>
 
             {/* User details & Logout */}
             <div className="flex items-center pl-2 border-l border-slate-200 gap-2">
